@@ -726,6 +726,7 @@ export class DependencyManager {
 				if (is_prop_update(_data)) {
 					let pending_visibility_update = false;
 					let pending_visibility_value = null;
+					const batched_props: Record<string, unknown> = {};
 					for (const [update_key, update_value] of Object.entries(_data)) {
 						if (update_key === "__type__") continue;
 						if (update_key === "visible") {
@@ -733,11 +734,12 @@ export class DependencyManager {
 							pending_visibility_value = update_value;
 							continue;
 						}
+						batched_props[update_key] = update_value;
+					}
+					if (Object.keys(batched_props).length > 0) {
 						await this.update_state_cb(
 							outputs[i],
-							{
-								[update_key]: update_value
-							},
+							batched_props,
 							false
 						);
 					}
