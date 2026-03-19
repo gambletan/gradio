@@ -559,6 +559,9 @@ function create_actions(
 				s.ui_state.selected_cells,
 				event
 			);
+			// When Ctrl/Meta-clicking toggles off the only selected cell,
+			// cells can be empty. Use false (not undefined) for selected
+			// so downstream reactive checks (`selected !== false`) work correctly.
 			update_state((s) => ({
 				ui_state: {
 					...s.ui_state,
@@ -567,7 +570,7 @@ function create_actions(
 					selected_header: false,
 					header_edit: false,
 					selected_cells: cells,
-					selected: cells[0]
+					selected: cells.length > 0 ? cells[0] : false
 				}
 			}));
 

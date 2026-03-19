@@ -65,7 +65,15 @@ export function create_drag_handlers(
 
 	const end_drag = (event: MouseEvent): void => {
 		if (!state.is_dragging && state.drag_start) {
-			handle_cell_click(event, state.drag_start[0], state.drag_start[1]);
+			// Skip re-triggering cell click if modifier keys (Ctrl/Meta/Shift) are
+			// pressed during mouseup. The cell was already selected on mousedown,
+			// and re-firing handle_cell_click with ctrlKey/metaKey would toggle the
+			// selection off, producing an empty selected_cells array and setting
+			// selected to undefined (instead of false), which crashes downstream
+			// reactive code that checks `selected !== false`. (fixes #13020)
+			if (!event.ctrlKey && !event.metaKey && !event.shiftKey) {
+				handle_cell_click(event, state.drag_start[0], state.drag_start[1]);
+			}
 		} else if (state.is_dragging && parent_element) {
 			parent_element.focus();
 		}
